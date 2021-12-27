@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css"
+    />
+
+    <style>
+      :root {
+        --bs-font-sans-serif: "DM Sans", sans-serif;
+      }
+
+      @media (min-width: 576px) {
+        .card {
+          border: 0;
+          box-shadow: rgb(0 0 0 / 5%) 0px 10px 20px;
+          border-radius: 10px;
+        }
+
+        .card-img-top {
+          width: 100%;
+          height: 20vw;
+          object-fit: cover;
+        }
+      }
+    </style>
+
+    <title>Articulated</title>
+  </head>
+    <body data-new-gr-c-s-check-loaded="14.1043.0" data-gr-ext-installed="">
+
+      <div class="alert alert-warning sticky-top mt-2" role="alert">
+        <span id="notification">⌛ Loading...</span>
+      </div>
+    
+      <div class="container">
+        <header class="blog-header py-3">
+          <div class="row flex-nowrap justify-content-between align-items-center">
+            <div class="col-4 pt-1">
+              <a class="link-secondary" data-bs-toggle="modal" data-bs-target="#themeModal" style="cursor: pointer;">Create Theme</a>
+            </div>
+            <div class="col-4 text-center">
+              <a class="blog-header-logo text-dark" href="#"><h1>Articulated</h1></a>
+            </div>
+            <div class="col-4 d-flex justify-content-end align-items-center">
+                <span class="btn btn-sm btn-outline-primary" style="margin-right: 10px;">
+                  <span id="balance">0</span>
+                  cUSD
+                </span>              
+              <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addModal">Create Post</a>
+            </div>
+          </div>
+        </header>
+      </div>
+      
+      <main>
+        <div class="mb-4 text-white rounded container" id="principal">
+          <div class="col-md-6 px-0" style="display: inline-block;
+          overflow: hidden;
+          position: relative;
+          width: 100%;">
+            <img style="pointer-events: none; position: absolute; width: 100%; height: 100%; z-index: -1; object-fit: cover; filter: brightness(50%);" id="principalImage">
+            <div class="p-4">
+              <h1 class="display-4 fst-italic" id="principalTitle">Title of a longer featured blog post</h1>
+            <p class="lead my-3" id="principalInfo">Multiple lines of text that form the lede, informing new readers quickly and efficiently about what’s most interesting in this post’s contents.</p>
+            <p class="lead mb-0" id="readLink"></p>
+            </div>
+          </div>
+        </div>
+
+        <div id="carouselExampleControls" class="carousel carousel-dark slide" data-bs-ride="carousel">
+
+          <div class="carousel-inner container" id="blogposts">
+
+
+
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev" style="height: 88%; width: 10%;">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next" style="height: 88%; width: 10%;">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      
+        <div class="container"> 
+
+        <div class="row g-5">
+          <div class="col-md-8">
+      
+            <article class="blog-post">
+              <h2 class="blog-post-title" id="postTitle"></h2>
+              <p class="blog-post-meta" id="postMeta"></p>
+      
+              <p id="postContent"></p>
+            </article>
+      
+          </div>
+      
+          <div class="col-md-4">
+            <div class="position-sticky" style="top: 2rem;">
+      
+              <div class="p-4">
+                <h4 class="fst-italic">Themes</h4>
+                <ol class="list-unstyled mb-0" id="themesList">
+                  
+                </ol>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        </div>
+      
+      </main>
+      
+      <footer class="blog-footer">
+        <p>
+          <a href="#">Back to top</a>
+        </p>
+      </footer>
+
+      <!--Modal-->
+      <div
+      class="modal fade"
+      id="addModal"
+      tabindex="-1"
+      aria-labelledby="newProductModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newProductModalLabel">Create Post</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-row">
+                <div class="col">
+                  <input
+                    type="text"
+                    id="postTitleInput"
+                    class="form-control mb-2"
+                    placeholder="Enter post title"
+                  />
+                </div>
+                <div class="col">
+                  <input
+                    type="text"
+                    id="postImageInput"
+                    class="form-control mb-2"
+                    placeholder="Enter post image url"
+                  />
+                </div>
+                <div class="col">
+                  <input
+                    type="text"
+                    id="postContentInput"
+                    class="form-control mb-2"
+                    placeholder="Enter post content"
+                  />
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <select id="themes" name="temas" class="form-control mb-2"> 
+
+                    </select>
+                  </div>
+                  <div class="col">
+                    <input
+                      type="text"
+                      id="postPriceInput"
+                      class="form-control mb-2"
+                      placeholder="Enter price"
+                    />
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-light border"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-dark"
+              data-bs-dismiss="modal"
+              id="newPost"
+            >
+              Create Post
+            </button>
+          </div>
+        </div>
+      </div>
+      </div>
+      <!--/Modal-->
+
+      <!--Modal-->
+      <div
+      class="modal fade"
+      id="themeModal"
+      tabindex="-1"
+      aria-labelledby="newThemeModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newThemeModalLabel">Create Theme</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col">
+                <input
+                  type="text"
+                  id="newTheme"
+                  class="form-control mb-2"
+                  placeholder="Enter theme name"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-light border"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-dark"
+              data-bs-dismiss="modal"
+              id="newThemeBtn"
+            >
+              Create Theme
+            </button>
+          </div>
+        </div>
+      </div>
+      </div>
+      <!--/Modal-->
+  
+      <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+      crossorigin="anonymous"
+      ></script>
+      <script src="https://unpkg.com/ethereum-blockies@0.1.1/blockies.min.js"></script>
+          
+    <script type="text/javascript" src="main.js"></script></body>
+</html>
