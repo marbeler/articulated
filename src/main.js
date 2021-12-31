@@ -3,10 +3,8 @@ import { newKitFromWeb3 } from "@celo/contractkit"
 import BigNumber from "bignumber.js"
 import marketplaceAbi from "../contract/marketplace.abi.json"
 import erc20Abi from "../contract/erc20.abi.json"
+import {ERC20_DECIMALS, MPContractAddress, cUSDContractAddress} from "./utils/constants";
 
-const ERC20_DECIMALS = 18
-const MPContractAddress = "0x27eA5f32d6cf18F22cBe911c0b09e856B0cf024b"
-const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
 
 let kit
 let contract
@@ -130,7 +128,6 @@ async function renderPosts() {
   document.getElementById("principalTitle").innerText = posts[posts.length - 1].title
   document.getElementById("principalInfo").innerText = _themeT + " - " + posts[posts.length - 1].date
   document.getElementById("principalImage").src = posts[posts.length - 1].image
-  console.log(posts[posts.length - 1].index);
   if(postsUnlocked.includes((posts[posts.length - 1].index).toString())){
     document.getElementById("readLink").innerHTML = `<a class="stretched-link viewPost" style="cursor: pointer;" id="${posts.length - 1}">Read</a>`
   }
@@ -299,7 +296,6 @@ document.getElementById("themesList").addEventListener("click", async (e) => {
 
     const themedPosts = await contract.methods.getThemedPosts(index).call()
 
-    console.log(themedPosts);
 
     const _posts = []
     for (let i of themedPosts) {
