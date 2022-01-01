@@ -3,16 +3,14 @@ import { newKitFromWeb3 } from "@celo/contractkit"
 import BigNumber from "bignumber.js"
 import marketplaceAbi from "../contract/marketplace.abi.json"
 import erc20Abi from "../contract/erc20.abi.json"
-
-const ERC20_DECIMALS = 18
-const MPContractAddress = "0x27eA5f32d6cf18F22cBe911c0b09e856B0cf024b"
-const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
+import { ERC20_DECIMALS, MPContractAddress, cUSDContractAddress } from "./utils/constants" // getting constants from utils folder
 
 let kit
 let contract
 let posts = []
 let post = []
 
+// connect to wallet
 const connectCeloWallet = async function () {
   if (window.celo) {
     notification("⚠️ Please approve this DApp to use it.")
@@ -35,6 +33,7 @@ const connectCeloWallet = async function () {
   }
 }
 
+// approve payment amount
 async function approve(_price) {
   const cUSDContract = new kit.web3.eth.Contract(erc20Abi, cUSDContractAddress)
 
@@ -44,13 +43,15 @@ async function approve(_price) {
   return result
 }
 
+// get cUSD balance
 const getBalance = async function () {
   const totalBalance = await kit.getTotalBalance(kit.defaultAccount)
   const cUSDBalance = totalBalance.cUSD.shiftedBy(-ERC20_DECIMALS).toFixed(2)
   document.querySelector("#balance").textContent = cUSDBalance
 }
 
-const getPosts = async function() {
+// get posts
+const getPosts = async function () {
   const _postsLength = await contract.methods.getPostsLength().call()
   const _posts = []
   for (let i = 0; i < _postsLength; i++) {
@@ -74,10 +75,38 @@ const getPosts = async function() {
   loadThemes()
 }
 
+// made adjustments
+async function renderPosts() {
+
+  const postsUnlocked = await contract.methods.getPostsUnlocked(kit.defaultAccount).call()
+
+  document.getElementById("blogposts").innerHTML = ""
+  const _themeT = await contract.methods.getTheme(posts[posts.length - 1].theme).call()
+  document.getElementById("principalTitle").innerText = posts[posts.length - 1].title
+  document.getElementById("principalInfo").innerText = _themeT + " - " + posts[posts.length - 1].date
+  document.getElementById("principalImage").src = posts[posts.length - 1].image
+
+  if (postsUnlocked.includes((posts[posts.length - 1].index).toString())) {
+    document.getElementById("readLink").innerHTML = `<a class="stretched-link viewPost" style="cursor: pointer;" id="${posts.length - 1}">Read</a>`
+  }
+  else {
+    document.getElementById("readLink").innerHTML = `<a class="stretched-link viewPost" style="cursor: pointer;" id="${posts.length - 1}">Read for ${posts[posts.length - 1].price.shiftedBy(-ERC20_DECIMALS).toFixed(2)} cUSD</a>`
+  }
+
+  posts.forEach(async (_post) => {
+    const postsUnlocked = await contract.methods.getPostsUnlocked(kit.defaultAccount).call()
+    const themeName = await contract.methods.getTheme(_post.theme).call()
+    const newDiv = document.createElement("div");
+    newDiv.innerHTML = `<div class="row justify-content-center">${cardTemplate(_post, themeName, postsUnlocked)}</div>`;
+
+    document.getElementById("blogposts").appendChild(newDiv);
+  });
+}
+
 async function loadThemes() {
   let themes = []
   document.getElementById("themes").innerHTML = ""
-  document.getElementById("themesList").innerHTML = '<li><a class="getAllPosts" style="cursor: pointer;">All Themes</a></li>'
+  document.getElementById("themesList").innerHTML = '<li><a href="#" class="getAllPosts text-dark">All Themes</a></li>'
   const _themesLength = await contract.methods.getThemesLength().call()
   const _themes = []
   for (let i = 0; i < _themesLength; i++) {
@@ -94,7 +123,7 @@ async function loadThemes() {
 
   themes.forEach(theme => {
     document.getElementById("themes").innerHTML += `<option value="${theme.i}">${theme.t}</option>`
-    document.getElementById("themesList").innerHTML += `<li><a class="getThemedPosts" style="cursor: pointer;" id="${theme.i}">${theme.t}</a></li>`
+    document.getElementById("themesList").innerHTML += `<li><a href="#" class="getThemedPosts text-dark" id="${theme.i}">${theme.t}</a></li>`
   })
 }
 
@@ -121,117 +150,49 @@ async function showPost(_index) {
 
 }
 
-async function renderPosts() {
-
-  const postsUnlocked = await contract.methods.getPostsUnlocked(kit.defaultAccount).call()
-
-  document.getElementById("blogposts").innerHTML = ""
-  const _themeT = await contract.methods.getTheme(posts[posts.length - 1].theme).call()
-  document.getElementById("principalTitle").innerText = posts[posts.length - 1].title
-  document.getElementById("principalInfo").innerText = _themeT + " - " + posts[posts.length - 1].date
-  document.getElementById("principalImage").src = posts[posts.length - 1].image
-  console.log(posts[posts.length - 1].index);
-  if(postsUnlocked.includes((posts[posts.length - 1].index).toString())){
-    document.getElementById("readLink").innerHTML = `<a class="stretched-link viewPost" style="cursor: pointer;" id="${posts.length - 1}">Read</a>`
-  }
-  else {
-    document.getElementById("readLink").innerHTML = `<a class="stretched-link viewPost" style="cursor: pointer;" id="${posts.length - 1}">Read for ${posts[posts.length - 1].price.shiftedBy(-ERC20_DECIMALS).toFixed(2)} cUSD</a>`
-  }
-
-  var template = document.createElement('template');
-
-  let html = `<div class="carousel-item active" style="height: 250; width: 100%;"><div class="row mb-2">${await cardsGroup(posts.length - 2)}</div></div>`
-
-  html = html.trim()
-
-  template.innerHTML = html
-
-  let htmlEle = template.content.firstChild
-
-  document.getElementById("blogposts").appendChild(htmlEle)
-
-  for (let i = posts.length-4; i >= 0; i-=2) {
-    html = `<div class="carousel-item" style="height: 250; width: 100%;"><div class="row mb-2">${await cardsGroup(i)}</div></div>`
-    html = html.trim()
-    template.innerHTML = html
-    let htmlEle2 = template.content.firstChild
-    document.getElementById("blogposts").appendChild(htmlEle2)
-  }
-}
-
-async function cardsGroup(_index) {
-
-  const postsUnlocked = await contract.methods.getPostsUnlocked(kit.defaultAccount).call()
-
-  let text = ""
-  let tmpText = ""
-
-  for(let j = _index; j > _index - 2; j--){
-    if (posts[j]){
-      const themeName = await contract.methods.getTheme(posts[j].theme).call()
-      tmpText = cardTemplate(posts[j], themeName, postsUnlocked);
-      text += tmpText
-    }
-  }
-
-  return text
-}
-
 function cardTemplate(_post, themeName, postsUnlocked) {
-  
+
   if (postsUnlocked.includes(_post.index.toString())) {
     return `
-      <div class="col-md-6">
-        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-          <div class="col p-4 d-flex flex-column position-static">
-            <strong class="d-inline-block mb-2 text-primary">${themeName}</strong>
-            <h3 class="mb-0">${_post.title}</h3>
-            <div class="mb-1 text-muted">${_post.date}</div>
-            <a class="stretched-link viewPost" style="cursor: pointer;" id="${_post.index}">Read</a>
-          </div>
-          <div class="col-auto d-none d-lg-block">
-            <img src="${_post.image}" style="object-fit: cover; width: 200px; height: 250px;">
-          </div>
+      <div class="row g-0 rounded overflow-hidden flex-md-row mb-5 shadow-lg h-md-250"
+      style="border-left: .5rem solid #212529;">
+        <div class="col p-4">
+          <strong class="d-inline-block mb-2 text-primary">${themeName}</strong>
+          <h3 class="mb-0">${_post.title}</h3>
+          <div class="mb-1 text-muted">${_post.date}</div>
+          <a class="stretched-link viewPost" style="cursor: pointer;" id="${_post.index}">Read</a>
+          <p class="text-dark fw-light">${truncateContent(_post.content)}</p>
+        </div>
+        <div class="col-auto d-none d-lg-block">
+          <img src="${_post.image}" style="object-fit: cover; width: 250px; height: 100%;">
         </div>
       </div>
     `
   }
   else {
     return `
-      <div class="col-md-6">
-        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-          <div class="col p-4 d-flex flex-column position-static">
-            <strong class="d-inline-block mb-2 text-primary">${themeName}</strong>
-            <h3 class="mb-0">${_post.title}</h3>
-            <div class="mb-1 text-muted">${_post.date}</div>
-            <a class="stretched-link viewPost" style="cursor: pointer;" id="${_post.index}">Read for ${_post.price.shiftedBy(-ERC20_DECIMALS).toFixed(2)} cUSD</a>
-          </div>
-          <div class="col-auto d-none d-lg-block">
-            <img src="${_post.image}" style="object-fit: cover; width: 200px; height: 250px;">
-          </div>
+      <div class="row g-0 rounded overflow-hidden flex-md-row mb-5 shadow-lg h-md-250"
+      style="border-left: .5rem solid #212529;">
+        <div class="col p-4">
+          <strong class="d-inline-block mb-2 text-primary">${themeName}</strong>
+          <h3 class="mb-0 text-dark">${_post.title}</h3>
+          <div class="mb-1 text-muted"><small>${_post.date}</small></div>
+          <a class="stretched-link viewPost" style="cursor: pointer;" id="${_post.index}">Read for ${_post.price.shiftedBy(-ERC20_DECIMALS).toFixed(2)} cUSD</a>
+          <p class="text-dark fw-light">${truncateContent(_post.content)}</p>
+        </div>
+        <div class="col-auto d-none d-lg-block">
+          <img src="${_post.image}" style="object-fit: cover; width: 250px; height: 100%;">
         </div>
       </div>
     `
   }
 }
 
-function identiconTemplate(_address) {
-  const icon = blockies
-    .create({
-      seed: _address,
-      size: 8,
-      scale: 16,
-    })
-    .toDataURL()
+// I removed identiconTemplate() function as it has no use here 
 
-  return `
-  <div class="rounded-circle overflow-hidden d-inline-block border border-white border-2 shadow-sm m-0">
-    <a href="https://alfajores-blockscout.celo-testnet.org/address/${_address}/transactions"
-        target="_blank">
-        <img src="${icon}" width="48" alt="${_address}">
-    </a>
-  </div>
-  `
+// truncate content
+function truncateContent(_content) {
+  return `${String(_content).substring(0, 250)}...`
 }
 
 function notification(_text) {
@@ -261,8 +222,8 @@ document
       new Date().getDate().toString() + " / " + ((new Date().getMonth()) + 1).toString(),
       document.getElementById("themes").value,
       new BigNumber(document.getElementById("postPriceInput").value)
-      .shiftedBy(ERC20_DECIMALS)
-      .toString()
+        .shiftedBy(ERC20_DECIMALS)
+        .toString()
     ]
     notification(`⌛ Adding "${params[0]}"...`)
     try {
@@ -299,8 +260,6 @@ document.getElementById("themesList").addEventListener("click", async (e) => {
 
     const themedPosts = await contract.methods.getThemedPosts(index).call()
 
-    console.log(themedPosts);
-
     const _posts = []
     for (let i of themedPosts) {
       let _post = new Promise(async (resolve) => {
@@ -323,7 +282,7 @@ document.getElementById("themesList").addEventListener("click", async (e) => {
     renderPosts()
     loadThemes()
 
-    }
+  }
   if (e.target.className.includes("getAllPosts")) {
     getPosts()
   }
@@ -331,15 +290,15 @@ document.getElementById("themesList").addEventListener("click", async (e) => {
 
 document.querySelector("#blogposts").addEventListener("click", async (e) => {
   if (e.target.className.includes("viewPost")) {
-     displayPost(e)
+    displayPost(e)
   }
-})  
+})
 
 document.querySelector("#principal").addEventListener("click", async (e) => {
   if (e.target.className.includes("viewPost")) {
-     displayPost(e)
+    displayPost(e)
   }
-})  
+})
 
 async function displayPost(e) {
   const index = e.target.id

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Articulated
 demo: https://marbeler.github.io/articulated/
 
@@ -24,6 +25,8 @@ getThemesLength: Returns the total number of Themes
 
 unlockPost: Giving th index of the post, it gets all the data of the post, and transfers the cUSD from one account to other by the price indicated in the product data
 
+=======
+>>>>>>> edc2bb8 (first commit)
 # Install
 
 ```
@@ -59,4 +62,8 @@ npm run build
 1. Install the [CeloExtensionWallet](https://chrome.google.com/webstore/detail/celoextensionwallet/kkilomkmpmkbdnfelcpgckmpcaemjcdh?hl=en) from the google chrome store.
 2. Create a wallet.
 3. Go to [https://celo.org/developers/faucet](https://celo.org/developers/faucet) and get tokens for the alfajores testnet.
+<<<<<<< HEAD
 4. Switch to the alfajores testnet in the CeloExtensionWallet.
+=======
+4. Switch to the alfajores testnet in the CeloExtensionWallet.
+>>>>>>> edc2bb8 (first commit)
