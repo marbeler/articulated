@@ -31,7 +31,7 @@ contract ThemesBlog {
     uint256 internal postsLength = 0;
     uint256 internal themesLength = 0;
     address internal cUsdTokenAddress =
-        0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
+    0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
 
     struct Post {
         address payable owner;
@@ -50,6 +50,11 @@ contract ThemesBlog {
     mapping(uint256 => string) internal themes;
 
     mapping(address => uint256[]) internal postsUnlocked;
+
+    modifier isOwner(uint256 _index) {
+        require(posts[_index].owner == msg.sender, "Only callable by the owner");
+        _;
+    }
 
     function createTheme(string memory _name) public {
         themes[themesLength] = _name;
@@ -77,31 +82,48 @@ contract ThemesBlog {
         postsLength++;
     }
 
+    function editPost(uint256 _index,
+        string memory _title,
+        string memory _image,
+        string memory _content,
+        uint256 _price) public isOwner(_index) {
+
+        posts[_index].title = _title;
+        posts[_index].image = _image;
+        posts[_index].content= _content;
+        posts[_index].price = _price;
+
+    }
+
+
     function getPost(uint256 _index)
-        public
-        view
-        returns (
-            address payable,
-            string memory,
-            string memory,
-            string memory,
-            string memory,
-            uint256,
-            uint256
-        )
+    public
+    view
+    returns (
+        address payable,
+        string memory,
+        string memory,
+        string memory,
+        string memory,
+        uint256,
+        uint256
+    )
     {
+
+        require( posts[_index].owner != address(0), "This post does not exist");
         return (
-            posts[_index].owner,
-            posts[_index].title,
-            posts[_index].image,
-            posts[_index].content,
-            posts[_index].date,
-            posts[_index].theme,
-            posts[_index].price
+        posts[_index].owner,
+        posts[_index].title,
+        posts[_index].image,
+        posts[_index].content,
+        posts[_index].date,
+        posts[_index].theme,
+        posts[_index].price
         );
     }
 
     function unlockPost(uint256 _index) public payable {
+        require( posts[_index].owner != address(0), "This post does not exist");
         require(
             IERC20Token(cUsdTokenAddress).transferFrom(
                 msg.sender,
@@ -114,9 +136,9 @@ contract ThemesBlog {
     }
 
     function getThemedPosts(uint256 _index)
-        public
-        view
-        returns (uint256[] memory)
+    public
+    view
+    returns (uint256[] memory)
     {
         return (postsThemes[_index]);
     }
@@ -126,9 +148,9 @@ contract ThemesBlog {
     }
 
     function getPostsUnlocked(address _profile)
-        public
-        view
-        returns (uint256[] memory)
+    public
+    view
+    returns (uint256[] memory)
     {
         return (postsUnlocked[_profile]);
     }
